@@ -35,11 +35,11 @@ int main(void)
 	std::cout << "OpenGL has found: " << glGetString(GL_VERSION) << std::endl;
 
 	// Triangle Vertex locations. 
-	float TriangleVertices[6] = 
+	float triangleVertexPositions[6] = 
 	{
-		-1.f, -1.f,
-		 0.f,  0.f, 
-		 1.f, -1.f
+		-.5f, -1.f,
+		 0.f,  .5f, 
+		 .5f, -1.f
 	};
 
 	// Create buffer
@@ -49,7 +49,15 @@ int main(void)
 	// Bind to what you want to draw on, think of layers in photoshop
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	// Initialize buffer and give it data
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), TriangleVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), triangleVertexPositions, GL_STATIC_DRAW);
+
+	// Tell OpenGL The layout of out vertex buffer.
+	// Enable drawing of Vertex
+	glEnableVertexAttribArray(0);
+	// Size = num points per vertex (two in this case).
+	// Stride = length in bytes from the start of one vertex to start of the next.
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
