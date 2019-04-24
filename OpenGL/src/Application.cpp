@@ -1,4 +1,5 @@
 #include <iostream>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 int main(void)
@@ -19,6 +20,16 @@ int main(void)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
+
+	/* Glew Code, this code allows access to graphics card's OpenGL functions */
+	if (glewInit() != GLEW_OK) {
+		// GLEW did not start correctly
+		std::cout << "Glew Not OK" << std::endl;
+		std::cin.get();
+		return -1;
+	}
+
+	std::cout << "OpenGL has found: " << glGetString(GL_VERSION) << std::endl;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
