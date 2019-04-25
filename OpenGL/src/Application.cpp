@@ -175,21 +175,28 @@ int main(void)
 	std::cout <<  "OpenGL has found: "  << glGetString(GL_VERSION) << std::endl;
 
 	// Triangle Vertex locations. 
-	float triangleVertexPositions[6] = 
+	float shapeVertices[] =
 	{
-		-.5f, -.5f,
-		 0.f,  .5f, 
-		 .5f, -.5f
+		-0.5f, -0.5f, // 0
+		-0.5f,  0.5f, // 1
+		 0.5f, -0.5f, // 2
+		 0.5f,  0.5f  // 3
 	};
 
-	// Create buffer
+	// The index buffer tells us which points in the shape are joined to form edges
+	unsigned int shapeIndexBuffer[] = {
+		0, 1, 2, // TriangleOne
+		1, 2, 3  // TriangleTwo
+	};
+
+	// Create vertex buffer
+	// glBindBuffer selects the buffer, as in we're about to work on this buffer
+	// Bind to what you want to draw on, think of layers in photoshop
+	// glBufferData initializes the buffer and give it data
 	unsigned int buffer;
 	glGenBuffers(1, &buffer);
-	// Select the buffer, as in we're about to work on this buffer
-	// Bind to what you want to draw on, think of layers in photoshop
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	// Initialize buffer and give it data
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), triangleVertexPositions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), shapeVertices, GL_STATIC_DRAW);
 
 	// Tell OpenGL The layout of out vertex buffer.
 	// Enable drawing of Vertex
@@ -197,6 +204,12 @@ int main(void)
 	// Size = num points per vertex (two in this case).
 	// Stride = length in bytes from the start of one vertex to start of the next.
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+
+	// Create a buffer for the shape index
+	unsigned int ibo; // Index Buffer Object
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), shapeIndexBuffer, GL_STATIC_DRAW);
 
 	ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
 
@@ -209,7 +222,7 @@ int main(void)
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
