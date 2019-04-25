@@ -1,6 +1,70 @@
-#include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+/**
+ *	Contains source code for the Vertex and Fragment shaders.
+ */
+struct ShaderProgramSource
+{
+	std::string VertexSource;
+	std::string FragmentSource;
+};
+
+/**
+ * Parses the shader file found at filepath into a Vertex and Fragment shader
+ * @param filepath path to the shader
+ * @return a struct containing the vertex and fragment shaders
+ */
+static ShaderProgramSource ParseShader(const std::string& filepath)
+{
+	std::ifstream stream(filepath);
+
+	enum class ShaderType
+	{
+		NONE = -1,
+		VERTEX = 0,
+		FRAGMENT = 1
+	};
+
+	std::string line;
+	std::stringstream ss[2];
+	ShaderType type = ShaderType::NONE;
+
+	while (getline(stream, line))
+	{
+		// search for #shader, this is a custom token
+		if(line.find("#shader") != std::string::npos)
+		{
+			// If the line contains #shader, check what type of shader it is and set the mode
+			if(line.find("vertex") != std::string::npos)
+			{
+				type = ShaderType::VERTEX;
+			}
+			else if (line.find("fragment") != std::string::npos)
+			{
+				type = ShaderType::FRAGMENT;
+			}
+		}
+		else
+		{
+			// above we are declaring two stringstreams
+			// we also know ShaderType::VERTEX = 0 and ShaderType::FRAGMENT = 1
+			// so we use the enum's int value to differentiate between the two string streams
+			ss[(int)type] << line << '\n';
+		}
+	}
+
+	ShaderProgramSource shaderSource;
+	shaderSource.VertexSource = ss[(int)ShaderType::VERTEX].str();
+	shaderSource.FragmentSource = ss[(int)ShaderType::FRAGMENT].str();
+
+	return shaderSource;
+}
 
 /**
  *	Compiles a shader of a specified type.
@@ -30,8 +94,8 @@ static unsigned int CompileShader(GLenum type, const std::string& source)
 		char* message = (char*) alloca(length * sizeof(char)); // This because char message[length] doesn't work because c++....
 		glGetShaderInfoLog(id, length, &length, message);
 		
-		std::cout << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment")
-				  << "Shader Compilation Error: " 
+		std::cout << (type == GL_VERTEX_SHADER ?  "Vertex"  :  "Fragment" )
+				  <<  " Shader Compilation Error: "  
 				  << message 
 				  << std::endl;
 
@@ -85,12 +149,12 @@ int main(void)
 	/* Initialize the library */
 	if (!glfwInit())
 	{
-		std::cout << "Could not initialise OpenGL" << std::endl;
+		std::cout <<  "Could not initialise OpenGL"  << std::endl;
 		std::cin.get();
 		return -1;
 	}
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(500, 500, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(500, 500,  "Hello World" , NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -103,12 +167,12 @@ int main(void)
 	/* Glew Code, this code allows access to graphics card's OpenGL functions */
 	if (glewInit() != GLEW_OK) {
 		// GLEW did not start correctly
-		std::cout << "Glew Not OK" << std::endl;
+		std::cout <<  "Glew Not OK"  << std::endl;
 		std::cin.get();
 		return -1;
 	}
 
-	std::cout << "OpenGL has found: " << glGetString(GL_VERSION) << std::endl;
+	std::cout <<  "OpenGL has found: "  << glGetString(GL_VERSION) << std::endl;
 
 	// Triangle Vertex locations. 
 	float triangleVertexPositions[6] = 
@@ -134,27 +198,9 @@ int main(void)
 	// Stride = length in bytes from the start of one vertex to start of the next.
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 
-	std::string vertexShader = 
-		"#version 330 core							\n"
-		"											\n"
-		"layout(location = 0) in vec4 position;		\n"
-		"											\n"
-		"void main()								\n"
-		"{											\n"
-		"	gl_Position = position;					\n"
-		"}											\n";
+	ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
 
-	std::string fragmentShader = 
-		"#version 330 core							\n"
-		"											\n"
-		"layout(location = 0) out vec4 color;		\n"
-		"											\n"
-		"void main()								\n"
-		"{											\n"
-		"	color = vec4(1.0, 0.0, 0.0, 1.0);		\n"
-		"}											\n";
-
-	unsigned int shader = CreateShader(vertexShader, fragmentShader);
+	unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
 	glUseProgram(shader);
 
 	/* Loop until the user closes the window */
