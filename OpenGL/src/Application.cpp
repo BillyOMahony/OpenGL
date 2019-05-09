@@ -32,7 +32,7 @@ static void GLClearError()
 }
 
 /**
- *	Checks for a prints OpenGL errors
+ *	Checks for and prints OpenGL errors
  */
 static bool GLLogCall(const char* function, const char* file, int line)
 {
@@ -182,6 +182,11 @@ int main(void)
 		std::cin.get();
 		return -1;
 	}
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	/* Create a windowed mode window and its OpenGL context */
 	window = glfwCreateWindow(500, 500,  "Hello World" , NULL, NULL);
 	if (!window)
@@ -218,6 +223,10 @@ int main(void)
 		1, 2, 3  // TriangleTwo
 	};
 
+	unsigned int vao; // holds vertex array id
+	GLCall(glGenVertexArrays(1, &vao)); // Generate one vertex array and store id in vao variable
+	GLCall(glBindVertexArray(vao));
+
 	// Create vertex buffer
 	// glBindBuffer selects the buffer, as in we're about to work on this buffer
 	// Bind to what you want to draw on, think of layers in photoshop
@@ -225,16 +234,16 @@ int main(void)
 	unsigned int buffer;
 	GLCall(glGenBuffers(1, &buffer));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), shapeVertices, GL_STATIC_DRAW));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), shapeVertices, GL_STATIC_DRAW));
 
-	// Tell OpenGL The layout of out vertex buffer.
+	// Tell OpenGL The layout of our vertex buffer.
 	// Enable drawing of Vertex
 	GLCall(glEnableVertexAttribArray(0));
 	// Size = num points per vertex (two in this case).
 	// Stride = length in bytes from the start of one vertex to start of the next.
 	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
 
-	// Create a buffer for the shape index
+	// Create an index buffer, this tells us which vertices are connected to form edges
 	unsigned int ibo; // Index Buffer Object
 	GLCall(glGenBuffers(1, &ibo));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
@@ -249,29 +258,32 @@ int main(void)
 	ASSERT(location != -1);
 	GLCall(glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.f));
 
-	float r = 0.f;
-	float g = 0.f;
-	float b = 0.f;
-	float a = 0.f;
+	// Unbind everything
+	GLCall(glBindVertexArray(0));
+	GLCall(glUseProgram(0));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+
+	float r = 0.2f;
+	float g = 0.2f;
+	float b = 0.8f;
+	float a = 1.f;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-		r += 0.0005f;
-		g += 0.001f;
-		b += .002f;
-		a += .01f;
-
-		if (r > 1) r = 0;
-		if (g > 1) g = 0;
-		if (b > 1) b = 0;
-
-		// Set colour
+		// Bind Shader and set colour
+		GLCall(glUseProgram(shader));
 		GLCall(glUniform4f(location, r, g, b, a));
-		// Clear errors, attempt to draw, then check new errors from drawing.
+
+		// Bind Vertex Array and Index Buffer
+		GLCall(glBindVertexArray(vao));
+		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+		
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));	
 				
 		/* Swap front and back buffers */
