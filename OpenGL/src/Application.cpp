@@ -9,6 +9,8 @@
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexArray.h"
+#include "VertexBufferLayout.h"
 
 /**
  *	Contains source code for the Vertex and Fragment shaders.
@@ -201,17 +203,13 @@ int main(void)
 		};
 
 		unsigned int vao; // holds vertex array id
-		GLCall(glGenVertexArrays(1, &vao)); // Generate one vertex array and store id in vao variable
-		GLCall(glBindVertexArray(vao));
-
+		
+		VertexArray va;
 		VertexBuffer vb(shapeVertexPositions, 4 * 2 * sizeof(float));
-
-		// Tell OpenGL The layout of our vertex buffer.
-		// Enable drawing of Vertex
-		GLCall(glEnableVertexAttribArray(0));
-		// Size = num points per vertex (two in this case).
-		// Stride = length in bytes from the start of one vertex to start of the next.
-		GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
+		
+		VertexBufferLayout layout;
+		layout.Push<float>(2);
+		va.AddBuffer(vb, layout);
 
 		IndexBuffer ib(shapeIndexBuffer, 6);
 
@@ -247,7 +245,7 @@ int main(void)
 			GLCall(glUniform4f(location, r, g, b, a));
 
 			// Bind Vertex Array and Index Buffer
-			GLCall(glBindVertexArray(vao));
+			va.Bind();
 			ib.Bind();
 
 			GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
