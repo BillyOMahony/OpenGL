@@ -201,8 +201,6 @@ int main(void)
 			0, 1, 2, // TriangleOne
 			1, 2, 3  // TriangleTwo
 		};
-
-		unsigned int vao; // holds vertex array id
 		
 		VertexArray va;
 		VertexBuffer vb(shapeVertexPositions, 4 * 2 * sizeof(float));
@@ -223,7 +221,7 @@ int main(void)
 		GLCall(glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.f));
 
 		// Unbind everything
-		GLCall(glBindVertexArray(0));
+		va.UnBind();
 		GLCall(glUseProgram(0));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));

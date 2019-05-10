@@ -4,7 +4,7 @@
 
 VertexArray::VertexArray()
 {
-	GLCall(glGenVertexArrays(1, &m_RendererID)); // Generate one vertex array and store id in vao variable
+	GLCall(glGenVertexArrays(1, &m_RendererID)); // Generate one vertex array and store id in m_RendererID variable
 }
 
 VertexArray::~VertexArray()
