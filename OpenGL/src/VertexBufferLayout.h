@@ -25,6 +25,12 @@ struct VertexBufferElement
 	}
 };
 
+/**
+ * Describes the layout of the vertex buffer
+ * I think this is the number of vertices per point. so this is 2D so two...
+ * Might also be the number of Triangles but I don't think so
+ * TODO find out which (if either) of the above is right
+ */
 class VertexBufferLayout
 {
 public:

@@ -7,17 +7,17 @@ class VertexArray
 {
 public:
 	/**
-	 *
+	 *	Generates this vertex array
 	 */
 	VertexArray();
 
 	/**
-	 *
+	 *	Deletes the associated vertex array
 	 */
 	~VertexArray();
 
 	/**
-	 *
+	 *	Adds a VertexBuffer and VertexBufferLayout and binds them to this VertexArray
 	 */
 	void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
 
