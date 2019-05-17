@@ -2,6 +2,10 @@
 #include <iostream>
 #include <GL/glew.h>
 
+#include "VertexArray.h"
+#include "IndexBuffer.h"
+#include "Shader.h";
+
 void GLClearError()
 {
 	// While there are errors (glGetError will return error flags until there are no errors)
@@ -16,4 +20,15 @@ bool GLLogCall(const char * function, const char * file, int line)
 		return false;
 	}
 	return true;
+}
+
+void Renderer::Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader)
+{
+	// Bind Shader, VertexArray and Index Buffer
+	shader.Bind();
+	va.Bind();
+	ib.Bind();
+
+	GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
 }

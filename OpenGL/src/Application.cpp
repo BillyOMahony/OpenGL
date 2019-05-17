@@ -87,21 +87,18 @@ int main(void)
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
+		Renderer renderer;
+
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
 		{
 			/* Render here */
 			GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-			// Bind Shader and set colour
 			shader.Bind();
-			shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.f);
-
-			// Bind Vertex Array and Index Buffer
-			va.Bind();
-			ib.Bind();
-
-			GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+			shader.SetUniform4f("u_Color", 1.0f, 0.0f, 1.0f, 1.0f);
+			
+			renderer.Draw(va, ib, shader);
 
 			/* Swap front and back buffers */
 			glfwSwapBuffers(window);
