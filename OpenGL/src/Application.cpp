@@ -11,6 +11,7 @@
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
 #include "Shader.h"
+#include "Texture.h"
 
 int main(void)
 {
@@ -50,25 +51,36 @@ int main(void)
 	std::cout << "OpenGL has found: " << glGetString(GL_VERSION) << std::endl;
 	
 	{
-		// Triangle Vertex locations. 
+		// Triangle Vertex locations
+		// Also now has texture coordinates
+		// Each line represents vertexX, vertexY, textureX, textureY
 		float shapeVertexPositions[] =
 		{
-			-0.5f, -0.5f, // 0
-			-0.5f,  0.5f, // 1
-			 0.5f, -0.5f, // 2
-			 0.5f,  0.5f  // 3
+		/*   vX ,   vY,   tX,   tY*/
+		
+			-0.7f, -0.5f, 0.0f, 0.0f, // bottom left
+			 0.7f, -0.5f, 1.0f, 0.0f, // bottom right
+			 0.7f,  0.5f, 1.0f, 1.0f, // top left
+			-0.7f,  0.5f, 0.0f, 1.0f  // top right
 		};
 
 		// The index buffer tells us which points in the shape are joined to form edges
 		unsigned int shapeIndexBuffer[] = {
 			0, 1, 2, // TriangleOne
-			1, 2, 3  // TriangleTwo
+			2, 3, 0  // TriangleTwo
 		};
-		
+
+		// Set up blending so PNG does not have hard edges
+		// For the source, take the source alpha. When rendering over it take 1 - source alpha
+		GLCall(glEnable(GL_BLEND));
+		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
 		VertexArray va;
-		VertexBuffer vb(shapeVertexPositions, 4 * 2 * sizeof(float));
+		// 4 * 4 * sizeof(float) = num vertices * number of floats per vertex * size in bytes of a float
+		VertexBuffer vb(shapeVertexPositions, 4 * 4 * sizeof(float));
 		
 		VertexBufferLayout layout;
+		layout.Push<float>(2);
 		layout.Push<float>(2);
 		va.AddBuffer(vb, layout);
 
@@ -77,6 +89,10 @@ int main(void)
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
 		shader.SetUniform4f("u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
+
+		Texture texture("res/textures/test.png");
+		texture.Bind();
+		shader.SetUniform1i("u_Texture", 0);
 
 		// Unbind everything
 		va.UnBind();
@@ -93,7 +109,7 @@ int main(void)
 		while (!glfwWindowShouldClose(window))
 		{
 			/* Render here */
-			GLCall(glClear(GL_COLOR_BUFFER_BIT));
+			renderer.Clear();
 
 			shader.Bind();
 			shader.SetUniform4f("u_Color", 1.0f, 0.0f, 1.0f, 1.0f);

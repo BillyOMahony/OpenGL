@@ -28,5 +28,8 @@ public:
 	 */
 	void Draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader);
 
-
+	/**
+	 * Clears the view.
+	 */
+	void Clear() const;
 };

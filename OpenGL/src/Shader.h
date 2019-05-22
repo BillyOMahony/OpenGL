@@ -35,19 +35,24 @@ public:
 	 */
 	void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
 
+	/**
+	 *	Sets a Texture slot for this shader
+	 */
+	void SetUniform1i(const std::string& name, int slot);
+
 private:
 	unsigned int m_RendererID;
 
 	std::string m_Filepath;
 	
 	// caching for uniforms
-	std::unordered_map<std::string, unsigned int> m_UniformLocationCache;
+	std::unordered_map<std::string, int> m_UniformLocationCache;
 
 
 	/**
 	 *	@return the location of the colour value (RGBA) for this shader
 	 */
-	unsigned int GetUniformLocation(const std::string& name);
+	int GetUniformLocation(const std::string& name);
 
 	/**
 	 * Parses the shader file found at filepath into a Vertex and Fragment shader
